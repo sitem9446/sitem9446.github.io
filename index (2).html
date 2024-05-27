@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Игра-Кликер</title>
+<style>
+  body {
+    position: inherit;
+    text-align: center;
+    font-family: monospace, sans-serif;
+    background-color: #333;
+    background-image: url(ihorbody.jpg);
+    background-size: 100%;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  .info {
+    margin-top: 50px;
+  }
+  .click-button {
+    width: 350px;
+    height: 350px;
+    background-image: url(ihor.jpg);
+    background-size: 100%;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: #fff;
+    margin: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+-webkit-tap-highlight-color: transparent;
+ transition: 0.04s;
+  }
+
+  .click-button:active {
+      box-shadow: 0px 0px 40px #222;
+  }
+
+  .score-popup {
+    font-size: 2.5rem;
+    position: absolute;
+    animation: floatUp 2s forwards;
+  }
+  @keyframes floatUp {
+    0% {
+      top: 50%;
+      opacity: 1;
+    }
+    100% {
+      top: 0%;
+      opacity: 0;
+    }
+  }
+  .progress-bar {
+    position: relative;
+    width: 100%;
+    background-color: #337;
+    height: 0.8rem;
+    border-radius: 10px;
+  }
+  .progress-bar-fill {
+    height: 20px;
+    background-color: #0077ff;
+    text-align: center;
+    line-height: 20px;
+    color: rgba(255, 255, 255, 0);
+    height: 0.8rem;
+    border-radius: 10px;
+  }
+
+  p {
+    font-size: 1.5rem;
+  }
+
+</style>
+</head>
+<body>
+  <h1>CryptoBobanCoin (CBC)</h1>
+<div class="info">
+  <div class="progress-bar" id="progress-bar">
+    <div class="progress-bar-fill" id="progress-bar-fill"></div>
+  </div>
+  <p>Натикано кріпти $<span id="coins">0</span></p>
+  <p>Уровєнь: <span id="level">1</span></p>
+  <p>Опять будуть клікі черіз <span id="timer">60</span> секунд</p>
+  <p>Осталось <span id="clicks-left">400</span></p>
+  <p>⬇</p>
+
+</div>
+<button class="click-button" id="clicker"></button>
+<script>
+  let coins = parseInt(localStorage.getItem('coins')) || 0;
+  let level = parseInt(localStorage.getItem('level')) || 1;
+  let nextLevel = parseInt(localStorage.getItem('nextLevel')) || 10;
+  let clicksPerMinute = 0;
+  let timer = 60;
+  const clickerButton = document.getElementById('clicker');
+  const coinsDisplay = document.getElementById('coins');
+  const levelDisplay = document.getElementById('level');
+  const progressBarFill = document.getElementById('progress-bar-fill');
+  const timerDisplay = document.getElementById('timer');
+  const clicksLeftDisplay = document.getElementById('clicks-left');
+
+  function updateDisplays() {
+    coinsDisplay.textContent = coins;
+    levelDisplay.textContent = level;
+    progressBarFill.style.width = ((coins / nextLevel) * 100) + '%';
+    progressBarFill.textContent = Math.floor((coins / nextLevel) * 100) + '%';
+    timerDisplay.textContent = timer;
+    clicksLeftDisplay.textContent = 400 - clicksPerMinute;
+  }
+
+  function showScorePopup(score) {
+    const popup = document.createElement('div');
+    popup.textContent = '+' + score;
+    popup.classList.add('score-popup');
+    popup.style.left = (Math.random() * 80 + 10) + '%';
+    document.body.appendChild(popup);
+    setTimeout(() => {
+      document.body.removeChild(popup);
+    }, 2000);
+  }
+
+  clickerButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    clickerButton.blur();
+    if (clicksPerMinute < 400) {
+      coins += level;
+      clicksPerMinute++;
+      if (coins >= nextLevel) {
+        level++;
+        nextLevel *= 2;
+        localStorage.setItem('level', level.toString());
+        localStorage.setItem('nextLevel', nextLevel.toString());
+      }
+      localStorage.setItem('coins', coins.toString());
+      updateDisplays();
+      showScorePopup(level);
+    }
+  });
+
+  clickerButton.addEventListener('mousedown', (event) => {
+    event.preventDefault();
+  });
+
+  setInterval(() => {
+    clicksPerMinute = 0;
+    timer = 60;
+    updateDisplays();
+  }, 60000);
+
+  setInterval(() => {
+    if (timer > 0) {
+      timer--;
+      timerDisplay.textContent = timer;
+    }
+  }, 1000);
+
+  updateDisplays();
+</script>
+</body>
+</html>
